@@ -1,0 +1,82 @@
+@import 'tailwindcss';
+@import '$lib/themes/base.css';
+
+@theme inline {
+	/* Brand / Interactive */
+	--color-primary:            var(--color-primary);
+	--color-primary-hover:      var(--color-primary-hover);
+	--color-primary-subtle:     var(--color-primary-subtle);
+	--color-primary-foreground: var(--color-primary-foreground);
+	--color-secondary:          var(--color-secondary);
+	--color-secondary-hover:    var(--color-secondary-hover);
+	--color-secondary-foreground: var(--color-secondary-foreground);
+	--color-accent:             var(--color-accent);
+	--color-accent-foreground:  var(--color-accent-foreground);
+
+	/* Surfaces */
+	--color-background:         var(--color-background);
+	--color-surface:            var(--color-surface);
+	--color-surface-raised:     var(--color-surface-raised);
+	--color-border:             var(--color-border);
+	--color-border-strong:      var(--color-border-strong);
+
+	/* Text */
+	--color-text-primary:       var(--color-text-primary);
+	--color-text-secondary:     var(--color-text-secondary);
+	--color-text-disabled:      var(--color-text-disabled);
+	--color-text-inverse:       var(--color-text-inverse);
+	--color-text-link:          var(--color-text-link);
+
+	/* Status */
+	--color-success:            var(--color-success);
+	--color-success-bg:         var(--color-success-bg);
+	--color-warning:            var(--color-warning);
+	--color-warning-bg:         var(--color-warning-bg);
+	--color-danger:             var(--color-danger);
+	--color-danger-bg:          var(--color-danger-bg);
+	--color-info:               var(--color-info);
+	--color-info-bg:            var(--color-info-bg);
+
+	/* Sidebar */
+	--color-sidebar-bg:         var(--color-sidebar-bg);
+	--color-sidebar-text:       var(--color-sidebar-text);
+	--color-sidebar-text-active:var(--color-sidebar-text-active);
+	--color-sidebar-active-bg:  var(--color-sidebar-active-bg);
+
+	/* Typography */
+	--font-family-sans: var(--font-sans);
+	--font-family-mono: var(--font-mono);
+
+	/* Radius */
+	--radius-sm:   var(--radius-sm);
+	--radius-md:   var(--radius-md);
+	--radius-lg:   var(--radius-lg);
+	--radius-xl:   var(--radius-xl);
+	--radius-full: var(--radius-full);
+}
+
+/* Global defaults */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+	background-color: var(--color-background);
+	color: var(--color-text-primary);
+	font-family: var(--font-sans);
+	font-size: 14px;
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-text-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, [role="button"], summary, label[for], select { cursor: pointer; }
+
+/* PWA safe area */
+:root {
+	--safe-area-inset-top:    env(safe-area-inset-top);
+	--safe-area-inset-bottom: env(safe-area-inset-bottom);
+}
+
+/* Global loading bar animation */
+@keyframes loading-slide {
+	0%   { transform: translateX(-100%); }
+	100% { transform: translateX(400%); }
+}
