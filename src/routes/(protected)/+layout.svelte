@@ -112,6 +112,7 @@
 		{ href: '/users',        label: $t('nav.users',         'Users'),         icon: Users,             minRole: 'user_admin' },
 		{ href: '/departments',  label: $t('nav.departments',   'Departments'),   icon: Building2,         minRole: 'user_admin' },
 		{ href: '/authentik',    label: $t('nav.groups',        'SSO Groups'),    icon: Shield,            minRole: 'ops_admin' },
+		{ href: '/model-access', label: $t('nav.model_access',  '模型權限'),       icon: Cpu,               minRole: 'ops_admin' },
 		{ href: '/devices',      label: $t('nav.devices',       'Devices'),       icon: Monitor,           minRole: 'user_admin' },
 		{ href: '/tokens',       label: $t('nav.tokens',        'Tokens'),        icon: Key,               minRole: 'user_admin' },
 		{ href: '/skills',       label: $t('nav.skills',        'Skills'),        icon: BookOpen,          minRole: 'ops_admin' },
