@@ -4,7 +4,7 @@
 	import { errorMessage } from '$lib/utils/error';
 	import { cn } from '$lib/utils/cn';
 	import { toast } from 'svelte-sonner';
-	import { Globe, Users, ShieldCheck, RefreshCw } from '@lucide/svelte';
+	import { Globe, Users, ShieldCheck, RefreshCw, FolderSync } from '@lucide/svelte';
 	import SkeletonTable from '$lib/components/ui/SkeletonTable.svelte';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 
@@ -30,6 +30,7 @@
 	let loading = $state(true);
 	let loadError = $state<string | null>(null);
 	let savingId = $state<string | null>(null);
+	let syncing = $state(false);
 
 	// 只顯示部門 group 當欄位(yid-dept-*);其他 group(角色)不在矩陣
 	const deptGroups = $derived(groups.filter((g) => g.is_dept));
@@ -61,6 +62,36 @@
 	}
 
 	onMount(load);
+
+	// 同步部門:把 Authentik yid-dept-* group 主動建進 Open WebUI(免等員工登入)。
+	interface SyncResult {
+		created: string[];
+		skipped: string[];
+		failed: { name: string; error: string }[];
+		authentik_dept_count: number;
+	}
+	async function syncDepartments() {
+		if (syncing) return;
+		syncing = true;
+		const res = await apiPost<SyncResult>('/openwebui/groups/sync', {});
+		await res.match(
+			async (d) => {
+				if (d.created.length > 0) {
+					toast.success(`已同步 ${d.created.length} 個部門:${d.created.map((n) => n.replace('yid-dept-', '')).join('、')}`);
+				} else {
+					toast.info('部門已是最新,沒有需要同步的');
+				}
+				if (d.failed.length > 0) {
+					toast.error(`${d.failed.length} 個部門同步失敗:${d.failed.map((f) => f.name).join('、')}`);
+				}
+				await load(); // 重新載入矩陣,新部門變成欄位
+			},
+			async (e) => {
+				toast.error(errorMessage(e));
+			}
+		);
+		syncing = false;
+	}
 
 	// 設某模型的存取:public 或 私有給 group_ids
 	async function setAccess(model: OwuiModel, next: { public: boolean; group_ids: string[] }) {
@@ -112,16 +143,29 @@
 				中央集控 Open WebUI 模型權限。公開 = 全員可用;否則只有勾選的部門看得到。
 			</p>
 		</div>
-		<button
-			onclick={load}
-			disabled={loading}
-			class={cn(
-				'inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm',
-				'text-text-secondary hover:bg-surface-raised disabled:opacity-50'
-			)}
-		>
-			<RefreshCw size={14} class={loading ? 'animate-spin' : ''} /> 重新整理
-		</button>
+		<div class="flex shrink-0 items-center gap-2">
+			<button
+				onclick={syncDepartments}
+				disabled={syncing || loading}
+				title="把 Authentik 部門 group 主動建進 Open WebUI(免等員工登入)"
+				class={cn(
+					'inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm',
+					'text-text-secondary hover:bg-surface-raised disabled:opacity-50'
+				)}
+			>
+				<FolderSync size={14} class={syncing ? 'animate-spin' : ''} /> 同步部門
+			</button>
+			<button
+				onclick={load}
+				disabled={loading}
+				class={cn(
+					'inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm',
+					'text-text-secondary hover:bg-surface-raised disabled:opacity-50'
+				)}
+			>
+				<RefreshCw size={14} class={loading ? 'animate-spin' : ''} /> 重新整理
+			</button>
+		</div>
 	</header>
 
 	{#if loading}
@@ -132,8 +176,8 @@
 		</div>
 	{:else if deptGroups.length === 0}
 		<div class="rounded-lg border border-warning bg-warning-bg p-4 text-sm text-warning">
-			目前沒有部門 group。部門 group 由員工 SSO 登入時自動同步(yid-dept-*)。
-			請先讓各部門至少一人登入 Open WebUI 一次。
+			目前沒有部門 group(yid-dept-*)可指派。按右上角「同步部門」即可把 Authentik
+			的部門 group 主動建進 Open WebUI(不必等員工登入)。
 		</div>
 	{:else}
 		<div class="overflow-x-auto rounded-xl border border-border">
