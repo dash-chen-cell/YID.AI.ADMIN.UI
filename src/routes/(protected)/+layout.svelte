@@ -34,7 +34,8 @@
 		Moon,
 		MonitorPlay,
 		ChevronsLeft,
-		ChevronsRight
+		ChevronsRight,
+		Terminal
 	} from '@lucide/svelte';
 
 	import { onMount, onDestroy } from 'svelte';
@@ -130,6 +131,7 @@
 			{ href: '/fleet',        label: $t('nav.fleet',        'Fleet'),       icon: Server,     minRole: 'ops_admin' },
 			{ href: '/model-access', label: $t('nav.model_access', '模型權限'),     icon: Cpu,        minRole: 'ops_admin' },
 			{ href: '/skills',       label: $t('nav.skills',       'Skills'),      icon: BookOpen,   minRole: 'ops_admin' },
+			{ href: '/terminal-grants', label: $t('nav.terminal_grants', 'Web 終端'), icon: Terminal, minRole: 'ops_admin' },
 			{ href: '/usage',        label: $t('nav.usage',        'Usage & ROI'), icon: TrendingUp, minRole: 'user_admin' },
 		]},
 		{ label: $t('navgroup.security', '安全治理'), items: [

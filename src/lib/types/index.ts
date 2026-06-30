@@ -53,6 +53,22 @@ export interface Device {
 	note: string | null;
 }
 
+// ── RD-W web 終端授權 ───────────────────────────────────────────────────────────
+export interface TerminalGrant {
+	id: string;
+	user: string;
+	host_id: string;
+	host_addr: string | null;
+	dept_group: string | null;
+	status: 'pending' | 'approved' | 'revoked';
+	granted_by: string | null;
+	granted_at: string | null;
+	requested_at: string | null;
+	expires_at: string | null;
+	last_access_at: string | null;
+	note: string | null;
+}
+
 // ── Audit ─────────────────────────────────────────────────────────────────────
 
 export interface AuditEvent {
