@@ -4,7 +4,7 @@
 	import { errorMessage } from '$lib/utils/error';
 	import { cn } from '$lib/utils/cn';
 	import { toast } from 'svelte-sonner';
-	import { Terminal, Plus } from '@lucide/svelte';
+	import { Terminal, Plus, RefreshCw } from '@lucide/svelte';
 	import type { TerminalGrant, User } from '$lib/types';
 	import { t } from '$lib/stores/i18n';
 	import SkeletonTable from '$lib/components/ui/SkeletonTable.svelte';
@@ -12,7 +12,7 @@
 	let grants = $state<TerminalGrant[]>([]);
 	let users = $state<User[]>([]);
 	let loading = $state(true);
-	let filter = $state<'all' | 'pending' | 'approved' | 'revoked'>('all');
+	let filter = $state<'all' | 'pending' | 'approved' | 'rejected' | 'revoked'>('all');
 	let actionLoading = $state<Record<string, boolean>>({});
 
 	// 主動建立授權
@@ -108,13 +108,27 @@
 		actionLoading = { ...actionLoading, [g.id]: false };
 	}
 
+	async function reject(g: TerminalGrant) {
+		if (actionLoading[g.id]) return;
+		actionLoading = { ...actionLoading, [g.id]: true };
+		const r = await apiPost(`/terminal-grants/${g.id}/reject`);
+		r.match(
+			() => { toast.success('已拒絕'); load(); },
+			(e) => { toast.error(errorMessage(e)); }
+		);
+		actionLoading = { ...actionLoading, [g.id]: false };
+	}
+
 	function badge(s: TerminalGrant['status']): string {
 		return s === 'approved' ? 'bg-success-bg text-success'
 			: s === 'pending' ? 'bg-warning-bg text-warning'
-			: 'bg-danger-bg text-danger';
+			: 'bg-danger-bg text-danger';   // revoked / rejected 都用 danger 色
 	}
 	function label(s: TerminalGrant['status']): string {
-		return s === 'approved' ? '已授權' : s === 'pending' ? '待審核' : '已撤銷';
+		return s === 'approved' ? '已授權'
+			: s === 'pending' ? '待審核'
+			: s === 'rejected' ? '已拒絕'
+			: '已撤銷';
 	}
 	// 健康狀態(平台每 30s 主動探員工機 code-server 是否有回應)
 	function healthColor(h: TerminalGrant['health']): string {
@@ -139,17 +153,28 @@
 			</span>
 			{/if}
 		</div>
-		<div class="flex gap-1 rounded-lg border border-border bg-surface p-1">
-			{#each (['all', 'pending', 'approved', 'revoked'] as const) as f}
+		<div class="flex items-center gap-2">
+			<div class="flex gap-1 rounded-lg border border-border bg-surface p-1">
+				{#each (['all', 'pending', 'approved', 'rejected', 'revoked'] as const) as f}
+				<button
+					onclick={() => filter = f}
+					class={cn(
+						'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+						filter === f ? 'bg-primary text-primary-foreground' : 'text-text-secondary hover:text-text-primary'
+					)}>
+					{f === 'all' ? '全部' : label(f as TerminalGrant['status'])}
+				</button>
+				{/each}
+			</div>
 			<button
-				onclick={() => filter = f}
-				class={cn(
-					'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
-					filter === f ? 'bg-primary text-primary-foreground' : 'text-text-secondary hover:text-text-primary'
-				)}>
-				{f === 'all' ? '全部' : label(f as TerminalGrant['status'])}
+				type="button"
+				onclick={load}
+				disabled={loading}
+				title="刷新授權與線上狀態"
+				aria-label="刷新"
+				class="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-raised transition-colors disabled:opacity-50">
+				<RefreshCw size={13} class={loading ? 'animate-spin' : ''} /> 刷新
 			</button>
-			{/each}
 		</div>
 	</div>
 
@@ -242,10 +267,16 @@
 						</td>
 						<td class="px-4 py-3 text-right">
 							{#if g.status === 'pending'}
-							<button onclick={() => openApprove(g)}
-								class="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors">
-								核准
-							</button>
+							<div class="inline-flex gap-1.5">
+								<button onclick={() => openApprove(g)}
+									class="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-hover transition-colors">
+									核准
+								</button>
+								<button onclick={() => reject(g)} disabled={actionLoading[g.id]}
+									class="rounded-md border border-danger/40 px-3 py-1.5 text-xs font-medium text-danger hover:bg-danger-bg transition-colors disabled:opacity-50">
+									拒絕
+								</button>
+							</div>
 							{:else if g.status === 'approved'}
 							<button onclick={() => revoke(g)} disabled={actionLoading[g.id]}
 								class="rounded-md border border-danger/40 px-3 py-1.5 text-xs font-medium text-danger hover:bg-danger-bg transition-colors disabled:opacity-50">

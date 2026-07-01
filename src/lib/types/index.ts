@@ -60,7 +60,7 @@ export interface TerminalGrant {
 	host_id: string;
 	host_addr: string | null;
 	dept_group: string | null;
-	status: 'pending' | 'approved' | 'revoked';
+	status: 'pending' | 'approved' | 'revoked' | 'rejected';
 	granted_by: string | null;
 	granted_at: string | null;
 	requested_at: string | null;
