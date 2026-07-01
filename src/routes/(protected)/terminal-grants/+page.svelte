@@ -116,6 +116,13 @@
 	function label(s: TerminalGrant['status']): string {
 		return s === 'approved' ? '已授權' : s === 'pending' ? '待審核' : '已撤銷';
 	}
+	// 健康狀態(平台每 30s 主動探員工機 code-server 是否有回應)
+	function healthColor(h: TerminalGrant['health']): string {
+		return h === 'up' ? 'text-success' : h === 'down' ? 'text-danger' : 'text-text-disabled';
+	}
+	function healthLabel(h: TerminalGrant['health']): string {
+		return h === 'up' ? '線上' : h === 'down' ? '離線' : '未知';
+	}
 	function fmt(s: string | null): string {
 		return s ? new Date(s).toLocaleString('zh-TW', { hour12: false }) : '—';
 	}
@@ -188,7 +195,8 @@
 			</button>
 		</div>
 		<p class="mt-1 text-xs text-text-disabled">
-			完整網址 = 平台域名 + 此路徑(如 https://你的平台域名{createdUrl})。員工登入平台後開啟即可。
+			完整網址 = <span class="font-medium">Portal 域名</span> + 此路徑(如 https://portal.你的網域{createdUrl})。
+			員工登入 Portal 後從「遠端開發」分頁開啟,或直接開此網址。
 		</p>
 		{/if}
 	</form>
@@ -222,6 +230,11 @@
 						</td>
 						<td class="px-4 py-3">
 							<span class={cn('rounded-full px-2 py-0.5 text-xs font-medium', badge(g.status))}>{label(g.status)}</span>
+							{#if g.status === 'approved'}
+							<span class={cn('mt-1 flex items-center gap-1 text-xs font-medium', healthColor(g.health))}>
+								<span class="inline-block h-2 w-2 rounded-full bg-current"></span>{healthLabel(g.health)}
+							</span>
+							{/if}
 						</td>
 						<td class="px-4 py-3 text-xs text-text-secondary">
 							<div>申請 {fmt(g.requested_at)}</div>

@@ -67,6 +67,8 @@ export interface TerminalGrant {
 	expires_at: string | null;
 	last_access_at: string | null;
 	note: string | null;
+	health: 'up' | 'down' | 'unknown';   // 平台主動探測結果
+	last_seen_at: string | null;         // 最後探到 up 的時間
 }
 
 // ── Audit ─────────────────────────────────────────────────────────────────────
