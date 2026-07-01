@@ -194,7 +194,7 @@
 			</select>
 			<input bind:value={createHostId} placeholder="開發機代號(英數與-)"
 				class="rounded-md border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-disabled focus:border-primary focus:outline-none" />
-			<input bind:value={createAddr} placeholder="VPN 位址 IP:port"
+			<input bind:value={createAddr} placeholder="連線位址(如 10.6.x.x:8420)"
 				class="rounded-md border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-disabled focus:border-primary focus:outline-none" />
 			<div class="flex gap-2">
 				<input type="number" bind:value={createDays} min="1" placeholder="有效天數"
@@ -299,10 +299,10 @@
 			核准授權:{approveTarget?.user} → {approveTarget?.host_id}
 		</h2>
 		<div class="space-y-1.5">
-			<span class="block text-xs font-medium text-text-secondary">開發機 VPN 位址(nginx 反代用)</span>
-			<input bind:value={approveAddr} placeholder="VPN 位址 IP:port"
+			<span class="block text-xs font-medium text-text-secondary">開發機連線位址(反代目標)</span>
+			<input bind:value={approveAddr} placeholder="IP:port(如 10.6.x.x:8420)"
 				class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-disabled focus:border-primary focus:outline-none" />
-			<p class="text-xs text-text-disabled">須與 nginx 00-shared 的 map 對應(目前 map 寫死;多機要同步)。</p>
+			<p class="text-xs text-text-disabled">員工工具包安裝完會印出此位址(格式 IP:8420)。nginx 依此動態反代,無需改設定。</p>
 		</div>
 		<div class="space-y-1.5">
 			<span class="block text-xs font-medium text-text-secondary">有效期(天)</span>
